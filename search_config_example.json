@@ -1,0 +1,15 @@
+{
+  "keywords": [
+    "artificial intelligence",
+    "machine learning",
+    "deep learning"
+  ],
+  "accounts": [
+    "elonmusk",
+    "BillGates",
+    "sundarpichai",
+    "satyanadella"
+  ],
+  "max_tweets": 20,
+  "database": "ai_tweets.db"
+}
