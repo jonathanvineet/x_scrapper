@@ -25,30 +25,40 @@ class SeleniumTwitterScraper:
             from selenium import webdriver
             from selenium.webdriver.chrome.options import Options
             from selenium.webdriver.chrome.service import Service
+            from webdriver_manager.chrome import ChromeDriverManager
             
             options = Options()
             
-            # Stealth options
-            if self.headless:
-                options.add_argument('--headless=new')
-            
+            # Essential container/headless options
+            options.add_argument('--headless=new')
             options.add_argument('--no-sandbox')
             options.add_argument('--disable-dev-shm-usage')
-            options.add_argument('--disable-blink-features=AutomationControlled')
             options.add_argument('--disable-gpu')
+            options.add_argument('--disable-software-rasterizer')
+            options.add_argument('--disable-extensions')
+            options.add_argument('--disable-setuid-sandbox')
             options.add_argument('--window-size=1920,1080')
+            options.add_argument('--remote-debugging-port=9222')
+            options.add_argument('--disable-blink-features=AutomationControlled')
             
             # Realistic user agent
             options.add_argument('user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36')
             
             # Additional anti-detection
-            options.add_experimental_option("excludeSwitches", ["enable-automation"])
+            options.add_experimental_option("excludeSwitches", ["enable-automation", "enable-logging"])
             options.add_experimental_option('useAutomationExtension', False)
+            options.add_experimental_option("prefs", {"profile.default_content_setting_values.notifications": 2})
             
             if self.proxy:
                 options.add_argument(f'--proxy-server={self.proxy}')
             
-            self.driver = webdriver.Chrome(options=options)
+            # Use webdriver-manager to handle chromedriver
+            try:
+                service = Service(ChromeDriverManager().install())
+                self.driver = webdriver.Chrome(service=service, options=options)
+            except:
+                # Fallback to system chromedriver
+                self.driver = webdriver.Chrome(options=options)
             
             # Execute CDP commands for further stealth
             self.driver.execute_cdp_cmd('Network.setUserAgentOverride', {
