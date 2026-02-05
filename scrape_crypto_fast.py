@@ -63,13 +63,97 @@ def scrape_account(driver, nitter_url, account):
                 tweet_text = text_elem.text.strip()
                 tweet_time = time_elem.get_attribute('title') or time_elem.text
                 
-                # Check if crypto-related
-                crypto_keywords = ['btc', 'bitcoin', 'eth', 'ethereum', 'crypto', 'defi', 
-                                  'web3', 'blockchain', 'nft', 'solana', 'token', 'coin',
-                                  'trading', 'bull', 'bear', 'hodl', 'dex', 'dao']
+                # Check if market-moving content
+                market_keywords = [
+                    # Core crypto
+                    'btc', 'bitcoin', 'eth', 'ethereum', 'crypto', 'defi', 'web3', 'blockchain',
+                    'nft', 'solana', 'token', 'coin', 'trading', 'bull', 'bear', 'hodl', 'dex', 'dao',
+                    'stablecoin', 'cbdc', 'digital currency',
+                    
+                    # Political (global)
+                    'election', 'vote', 'voting', 'ballots', 'results', 'landslide', 'runoff',
+                    'incumbent', 'opposition', 'regime change', 'coup', 'instability', 'martial law',
+                    'emergency powers', 'authoritarian', 'democracy', 'republic', 'parliament',
+                    'congress', 'senate', 'house', 'judiciary', 'supreme court', 'constitutional',
+                    'amendment', 'executive order', 'decree',
+                    
+                    # Regulatory & legal (very high impact)
+                    'regulation', 'regulated', 'unregulated', 'ban', 'banned', 'illegal', 'legal',
+                    'legality', 'compliance', 'compliant', 'noncompliant', 'enforcement',
+                    'investigation', 'probe', 'subpoena', 'lawsuit', 'sued', 'settlement',
+                    'fine', 'penalty', 'charges', 'indictment', 'arrest', 'extradition',
+                    'warrant', 'trial', 'appeal', 'ruling', 'verdict',
+                    
+                    # US-specific political/legal
+                    'sec', 'cftc', 'doj', 'treasury', 'irs', 'federal reserve', 'fed',
+                    'fomc', 'white house', 'ofac', 'patriot act', 'aml', 'kyc', 'travel rule',
+                    'stablecoin bill', 'crypto bill', 'infrastructure bill', 'tax bill',
+                    'capital gains', 'unrealized gains',
+                    
+                    # Global regulators
+                    'imf', 'world bank', 'bis', 'fatf', 'ecb', 'esma', 'mica', 'g7', 'g20',
+                    'wto', 'un', 'bank of england', 'pboc', 'rbi', 'sebi', 'mas', 'hkma', 'sfc',
+                    
+                    # Geopolitics & conflict
+                    'war', 'conflict', 'invasion', 'military action', 'escalation', 'deescalation',
+                    'ceasefire', 'sanctions', 'embargo', 'trade war', 'tariffs', 'blockade',
+                    'cyberwar', 'cyberattack', 'terrorism', 'retaliation', 'strike', 'missile',
+                    'defense spending',
+                    
+                    # Macroeconomic
+                    'interest rates', 'rate hike', 'rate cut', 'pause', 'inflation', 'cpi', 'ppi',
+                    'unemployment', 'jobs report', 'nfp', 'gdp', 'recession', 'depression',
+                    'soft landing', 'hard landing', 'liquidity', 'quantitative easing', 'qe',
+                    'quantitative tightening', 'qt', 'money supply', 'm2', 'debt ceiling', 'default',
+                    
+                    # Fiscal/monetary policy
+                    'stimulus', 'bailout', 'fiscal spending', 'austerity', 'deficit', 'surplus',
+                    'bond yields', 'treasury yields', 'dollar strength', 'dxy', 'currency devaluation',
+                    'printing money', 'money printer', 'liquidity injection',
+                    
+                    # Political figures
+                    'president', 'prime minister', 'chancellor', 'finance minister', 'treasury secretary',
+                    'central bank chair', 'fed chair', 'sec chair', 'senator', 'congressman', 'mp',
+                    'head of state',
+                    
+                    # Country-specific triggers
+                    'usa', 'china', 'russia', 'ukraine', 'israel', 'palestine', 'iran', 'india',
+                    'eu', 'uk', 'germany', 'france', 'japan', 'south korea', 'taiwan', 'hong kong',
+                    'singapore', 'el salvador', 'argentina', 'venezuela', 'nigeria', 'turkey',
+                    
+                    # Sanctions & capital control
+                    'frozen assets', 'asset seizure', 'capital controls', 'bank freeze', 'swift ban',
+                    'cross-border payments', 'remittance restrictions',
+                    
+                    # Banking system stress
+                    'bank failure', 'bank run', 'insolvency', 'liquidity crisis', 'credit crunch',
+                    'systemic risk', 'deposit freeze', 'withdrawal limits',
+                    
+                    # Crypto-policy specific
+                    'cbdc', 'central bank digital currency', 'digital dollar', 'digital yuan',
+                    'digital euro', 'reserve backing', 'proof of reserves', 'custodial risk',
+                    'self custody', 'wallet ban', 'privacy coins', 'mixer ban',
+                    
+                    # Election-season crypto
+                    'pro-crypto', 'anti-crypto', 'crypto donations', 'campaign funding', 'lobbying',
+                    'pac', 'political donations', 'crypto voter',
+                    
+                    # Media & narrative signals
+                    'breaking', 'urgent', 'exclusive', 'leaked', 'sources say', 'anonymous sources',
+                    'insider', 'whistleblower', 'report claims', 'developing story', 'confirmed',
+                    'denied', 'retracted',
+                    
+                    # Market psychology
+                    'panic', 'uncertainty', 'fear', 'risk-off', 'risk-on', 'capital flight',
+                    'hedge', 'safe haven', 'volatility spike',
+                    
+                    # Institutional power players
+                    'blackrock', 'vanguard', 'fidelity', 'goldman sachs', 'jpmorgan', 'citadel',
+                    'microstrategy', 'tesla', 'sovereign wealth fund', 'pension fund',
+                ]
                 
                 text_lower = tweet_text.lower()
-                is_crypto = any(keyword in text_lower for keyword in crypto_keywords)
+                is_crypto = any(keyword in text_lower for keyword in market_keywords)
                 
                 results.append({
                     'username': account,
@@ -97,16 +181,156 @@ def main():
     print("🚀 FAST CRYPTO TWITTER SCRAPER (SELENIUM + NITTER)")
     print("=" * 80)
     
-    # Top crypto accounts
+    # TIER-0: Market-moving individuals + comprehensive account list
     accounts = [
-        'VitalikButerin',    # Ethereum founder
-        'cz_binance',        # Binance CEO
-        'APompliano',        # Bitcoin investor
-        'aantonop',          # Bitcoin expert
-        'Saylor',            # MicroStrategy CEO
-        'CathieDWood',       # ARK Invest CEO
-        'balajis',           # Angel investor
-        'novogratz',         # Galaxy Digital CEO
+        # TIER-0 (MARKET-MOVING INDIVIDUALS)
+        'elonmusk',
+        'VitalikButerin',
+        'saylor',
+        'cz_binance',
+        'balajis',
+        'APompliano',
+        'lexfridman',
+        'naval',
+        'jack',
+        'brian_armstrong',
+        'jespow',
+        
+        # US POLITICS / REGULATORS
+        'WhiteHouse',
+        'POTUS',
+        'USTreasury',
+        'federalreserve',
+        'SECgov',
+        'CFTC',
+        'DOJCrimDiv',
+        'IRSnews',
+        'GaryGensler',
+        'SecYellen',
+        'fomc_alerts',
+        
+        # GLOBAL REGULATORS / CENTRAL BANKS
+        'IMFNews',
+        'worldbank',
+        'BIS_org',
+        'FATFNews',
+        'ecb',
+        'bankofengland',
+        'ecb_press',
+        'PBOC',
+        'RBI',
+        'SEBI_India',
+        'MAS_sg',
+        'EU_Commission',
+        'Europarl_EN',
+        
+        # GEOPOLITICS / WAR / MACRO NARRATIVES
+        'Reuters',
+        'business',
+        'WSJ',
+        'FT',
+        'TheEconomist',
+        'politico',
+        'axios',
+        'BloombergTV',
+        'Breakingviews',
+        'zerohedge',
+        
+        # INSTITUTIONAL / WALL STREET
+        'BlackRock',
+        'Vanguard_Group',
+        'Fidelity',
+        'GoldmanSachs',
+        'jpmorgan',
+        'MorganStanley',
+        'Citadel',
+        'RayDalio',
+        'howardmarks',
+        
+        # EXCHANGES (LISTINGS, HALTS, DUMPS)
+        'binance',
+        'coinbase',
+        'krakenfx',
+        'okx',
+        'bitfinex',
+        'kucoincom',
+        'bybit_official',
+        'Gate_io',
+        'HuobiGlobal',
+        
+        # ON-CHAIN / WHALE / FLOW TRACKERS
+        'whale_alert',
+        'lookonchain',
+        'ArkhamIntel',
+        'glassnode',
+        'santimentfeed',
+        'cryptoquant_com',
+        'intotheblock',
+        
+        # CRYPTO NEWS (BREAKING = VOLATILITY)
+        'CoinDesk',
+        'Cointelegraph',
+        'TheBlock__',
+        'DecryptMedia',
+        'WatcherGuru',
+        'WuBlockchain',
+        'CryptoSlate',
+        'bitcoinmagazine',
+        
+        # LEGAL / ENFORCEMENT
+        'law360',
+        'USCourts',
+        'SCOTUSblog',
+        'JusticeOIG',
+        'FBI',
+        'Europol',
+        
+        # POLITICAL FIGURES (MOVES MARKETS)
+        'realDonaldTrump',
+        'JoeBiden',
+        'RishiSunak',
+        'narendramodi',
+        'vonderleyen',
+        'EmmanuelMacron',
+        'OlafScholz',
+        'ZelenskyyUa',
+        'netanyahu',
+        
+        # MACRO / RISK / SENTIMENT
+        'LynAldenContact',
+        'RaoulGMI',
+        'RealVision',
+        'MacroAlf',
+        'jsblokland',
+        'financialjuice',
+        
+        # NARRATIVE / EARLY SIGNALS
+        'unusual_whales',
+        'firstsquawk',
+        'spectatorindex',
+        'intelcrab',
+        'LiveSquawk',
+        'MarketsToday',
+        
+        # EMERGENCY / BLACK SWAN
+        'Breaking911',
+        'BNONews',
+        'disclosetv',
+        'alertchannel',
+        'war_monitor',
+        'conflict_news',
+        
+        # PROTOCOL / CORE CRYPTO
+        'ethereum',
+        'Bitcoin',
+        'Solana',
+        'Ripple',
+        'Cardano',
+        'StellarOrg',
+        'Polkadot',
+        'chainlink',
+        'aaveaave',
+        'Uniswap',
     ]
     
     # Nitter instances (Twitter frontends)
