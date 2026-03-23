@@ -534,6 +534,271 @@ watch -n 60 'curl https://YOUR_DOMAIN/api/stats | jq'
 
 ---
 
+## 🔍 Getting Data from Vercel
+
+### View Deployment Information
+```bash
+# List all deployments
+vercel list
+
+# View specific deployment details
+vercel inspect [DEPLOYMENT_URL]
+
+# Get current project info
+vercel projects list
+```
+
+### Access Your Live API Domain
+```bash
+# Get your Vercel domain
+vercel list
+
+# Output shows:
+# URL: https://x-scrapper-wheat.vercel.app
+# Created: ...
+```
+
+### View Real-Time Logs
+```bash
+# Stream live logs (best for debugging)
+vercel logs --follow
+
+# View last 100 lines
+vercel logs
+
+# View logs for specific deployment
+vercel logs [DEPLOYMENT_URL]
+
+# Filter by log level
+vercel logs --follow --level error
+```
+
+### Check Environment Variables
+```bash
+# List all environment variables
+vercel env list
+
+# View specific env var
+vercel env list DATABASE_PATH
+```
+
+### View Function Metrics
+```bash
+# Check function execution time & memory
+vercel projects inspect
+
+# View in dashboard: https://vercel.com/dashboard
+```
+
+### Access Vercel Dashboard
+
+**Open in browser:**
+```
+https://vercel.com/dashboard
+```
+
+**Then navigate to:**
+1. Select `x-scrapper` project
+2. **Deployments tab** - View all deployments
+3. **Logs tab** - Real-time function logs
+4. **Settings tab** - Configuration & environment variables
+5. **Integrations** - GitHub, analytics, etc.
+
+### Get Your API Domain & Details
+```bash
+# Method 1: Via CLI
+vercel list
+
+# Method 2: Via Dashboard
+# 1. Go to https://vercel.com/dashboard
+# 2. Click x-scrapper project
+# 3. Domain shown at top: x-scrapper-wheat.vercel.app
+
+# Method 3: Check deployment URL
+vercel projects inspect x-scrapper
+```
+
+### Monitor Function Execution
+
+**Via Vercel Dashboard:**
+1. Go to https://vercel.com/dashboard
+2. Select x-scrapper project
+3. Click on a deployment
+4. View:
+   - Response status
+   - Execution time
+   - Memory used
+   - Errors/logs
+
+**Via CLI:**
+```bash
+# View function details
+vercel inspect https://x-scrapper-wheat.vercel.app
+
+# Get detailed metrics
+vercel projects inspect --json
+```
+
+### Export & Backup Data
+
+**From Your API:**
+```bash
+# Export all results to JSON
+curl https://x-scrapper-wheat.vercel.app/api/results > results.json
+
+# Export stats
+curl https://x-scrapper-wheat.vercel.app/api/stats > stats.json
+
+# Export logs
+curl https://x-scrapper-wheat.vercel.app/api/logs > logs.json
+```
+
+**From SQLite Database:**
+```bash
+# Export to CSV
+sqlite3 /tmp/crypto_intelligence.db ".mode csv" ".output results.csv" "SELECT * FROM scraped_data;" ".output stdout"
+
+# Export to JSON
+sqlite3 /tmp/crypto_intelligence.db ".mode json" "SELECT * FROM scraped_data;" > results.json
+```
+
+### Get Deployment Logs Programmatically
+
+```bash
+# Get last 50 lines of logs in JSON
+vercel logs --json > deployment_logs.json
+
+# Get error logs only
+vercel logs --level error --json > errors.json
+
+# Get logs from specific time
+vercel logs --since 1h --json
+```
+
+### Access Raw Function Output
+
+**Function logs endpoint:**
+```bash
+# View deployment build logs
+https://vercel.com/jonathans-projects-e5e7401f/x-scrapper/deployments
+
+# Each deployment shows:
+# - Build logs (stdout/stderr)
+# - Execution logs
+# - Error messages
+# - Performance metrics
+```
+
+### Monitor API Performance
+
+**Check response times:**
+```bash
+# Measure API response time
+time curl https://x-scrapper-wheat.vercel.app/api/health
+
+# Expected: < 200ms
+```
+
+**Track metrics in Vercel:**
+1. Dashboard → x-scrapper project
+2. Analytics tab (if enabled)
+3. View:
+   - Response time
+   - Request count
+   - Error rate
+
+### Redeploy from Vercel Dashboard
+
+**Method 1: Via CLI**
+```bash
+vercel --prod --yes
+```
+
+**Method 2: Via Dashboard**
+1. https://vercel.com/dashboard
+2. Select x-scrapper
+3. Click on a deployment
+4. Click "..." menu
+5. Select "Redeploy"
+
+**Method 3: Auto-deploy on Git Push**
+```bash
+# Just push to GitHub
+git push origin main
+
+# Vercel automatically deploys!
+```
+
+### Get Deployment URL
+
+```bash
+# After deployment
+vercel --prod
+
+# Output shows:
+# Production: https://x-scrapper-wheat.vercel.app
+# Inspect: https://vercel.com/...
+
+# Your API is at the Production URL
+```
+
+### Share Your API
+
+```bash
+# Copy your domain
+https://x-scrapper-wheat.vercel.app
+
+# Share to others:
+# - Give them the /api/results endpoint
+# - They can query your live data!
+
+# Example for others:
+curl https://x-scrapper-wheat.vercel.app/api/stats
+```
+
+### Troubleshoot via Logs
+
+**Find errors:**
+```bash
+# Search logs for errors
+vercel logs --follow | grep -i error
+
+# Get function execution details
+vercel logs --follow --level error
+
+# Check database connection errors
+vercel logs | grep -i "database\|connection"
+```
+
+**Common log messages:**
+```
+✅ "Database initialized" - Good!
+✅ "Scraper completed successfully" - Good!
+❌ "Database connection error" - Check DATABASE_PATH
+❌ "Module not found" - Check requirements.txt
+❌ "Timeout" - Function taking too long
+```
+
+### Access Deployment Files
+
+**View deployed code:**
+```bash
+# List project files
+vercel ls
+
+# View file contents
+vercel cat path/to/file
+```
+
+**View on dashboard:**
+1. https://vercel.com/dashboard
+2. x-scrapper project
+3. Deployments tab
+4. Click deployment
+5. Files tab (shows what was deployed)
+
+---
+
 ## ✅ Complete Checklist
 
 - [ ] Read this README
