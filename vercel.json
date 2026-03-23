@@ -2,22 +2,22 @@
   "version": 2,
   "builds": [
     {
-      "src": "api.py",
-      "use": "@vercel/python"
+      "src": "api/index.py",
+      "use": "@vercel/python",
+      "config": {
+        "maxLambdaSize": "50mb",
+        "runtime": "python3.9"
+      }
     }
   ],
   "routes": [
     {
-      "src": "/api/(.*)",
-      "dest": "api.py"
-    },
-    {
       "src": "/(.*)",
-      "dest": "api.py"
+      "dest": "api/index.py"
     }
   ],
   "env": {
-    "DATABASE_PATH": "crypto_intelligence.db",
+    "DATABASE_PATH": "/tmp/crypto_intelligence.db",
     "PYTHONUNBUFFERED": "1"
   }
 }
