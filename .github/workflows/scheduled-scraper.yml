@@ -1,0 +1,26 @@
+name: Trigger Scraper
+
+on:
+  schedule:
+    # Run every hour at minute 0
+    - cron: '0 * * * *'
+  workflow_dispatch:
+
+jobs:
+  scrape:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger scraper
+        run: |
+          # Replace with your Vercel deployment URL
+          curl -X POST https://YOUR_DOMAIN.vercel.app/api/scrape \
+            -H "Content-Type: application/json" \
+            -d '{"trigger": "automated"}'
+        env:
+          SCRAPER_API_URL: ${{ secrets.SCRAPER_API_URL }}
+
+      - name: Check scraper status
+        run: |
+          curl https://${{ secrets.SCRAPER_API_URL }}/api/logs \
+            | jq '.logs[0]'
+        continue-on-error: true
